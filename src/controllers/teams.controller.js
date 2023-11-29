@@ -1,6 +1,5 @@
 const Team = require('../models/teamModel');
 
-// Get all teams
 const getTeams = async (req, res) => {
   try {
     const teams = await Team.find();
@@ -10,18 +9,24 @@ const getTeams = async (req, res) => {
   }
 };
 
-// Create a new team
 const createTeam = async (req, res) => {
   try {
-    const team = new Team(req.body);
+    const { name, participiants } = req.body;
+    if (!name || !participiants || !Array.isArray(participiants)) {
+      return res.status(400).json({ error: 'Invalid request body' });
+    }
+    const team = new Team({
+      name: name,
+      participiants: participiants,
+    });
     await team.save();
-    res.json(team);
+    res.status(201).json(team);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
-// Update a team by ID
 const updateTeam = async (req, res) => {
   try {
     const { id } = req.params;
@@ -32,7 +37,6 @@ const updateTeam = async (req, res) => {
   }
 };
 
-// Delete a team by ID
 const deleteTeam = async (req, res) => {
   try {
     const { id } = req.params;
