@@ -17,9 +17,9 @@ const voterRoutes = require('./routes/voterRoutes');
 const voteRoutes = require('./routes/votesRoutes');
 
 // Use routes
-app.use('/api', teamRoutes);
-app.use('/api', voterRoutes);
-app.use('/api', voteRoutes);
+app.use('/', teamRoutes);
+app.use('/', voterRoutes);
+app.use('/', voteRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
