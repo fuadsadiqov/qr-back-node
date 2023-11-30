@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
 
-const Team = mongoose.model('Team', { name: String, participiants: Array });
+const Team = mongoose.model('Team', { name: String, teamMembers: Array });
 
 module.exports = Team;

@@ -9,18 +9,30 @@ const getTeams = async (req, res) => {
   }
 };
 
+const getTeamById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const team = await Team.findById(id);
+    res.json(team);
+  } catch (error) {
+    res.status(500).json(error)
+  }
+}
+
 const createTeam = async (req, res) => {
   try {
-    const { name, participiants } = req.body;
-    if (!name || !participiants || !Array.isArray(participiants)) {
-      return res.status(400).json({ error: 'Invalid request body' });
+    const { name, teamMembers } = req.body;
+    console.log(req);
+    if (req.body) {
+      const team = new Team({
+        name: name,
+        teamMembers: teamMembers,
+      });
+      await team.save();
+      res.status(201).json(team);
+    }else{
+      res.status(400).json({error: "Invalid request body"})
     }
-    const team = new Team({
-      name: name,
-      participiants: participiants,
-    });
-    await team.save();
-    res.status(201).json(team);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -49,6 +61,7 @@ const deleteTeam = async (req, res) => {
 
 module.exports = {
   getTeams,
+  getTeamById,
   createTeam,
   updateTeam,
   deleteTeam,
