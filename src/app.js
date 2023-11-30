@@ -2,9 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 require('dotenv').config();
+const cors = require('cors');
 
 const app = express();
-
+app.use(cors({
+  origin: "*",
+}));
+app.use(bodyParser.json());
 mongoose.connect(process.env.DB_URL, {
   dbName: 'invoice'
 });

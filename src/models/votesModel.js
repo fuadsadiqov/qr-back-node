@@ -1,5 +1,11 @@
 const mongoose = require('mongoose');
 
-const Vote = mongoose.model('Vote', { voterId: mongoose.Types.ObjectId, teamId: mongoose.Types.ObjectId });
+const voteSchema = new mongoose.Schema({
+  voterId: { type: String, required: true },
+  teamId: { type: String, required: true },
+  rating: { type: Number, required: true }
+});
+
+const Vote = mongoose.model('Vote', voteSchema);
 
 module.exports = Vote;

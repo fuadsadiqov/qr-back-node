@@ -1,6 +1,5 @@
 const Vote = require('../models/votesModel');
 
-// Get all votes
 const getVotes = async (req, res) => {
   try {
     const votes = await Vote.find();
@@ -10,18 +9,18 @@ const getVotes = async (req, res) => {
   }
 };
 
-// Create a new vote
 const createVote = async (req, res) => {
   try {
-    const vote = new Vote(req.body);
+    const { voterId, teamId, rating } = req.body; 
+    const vote = new Vote({ voterId, teamId, rating }); 
     await vote.save();
     res.json(vote);
   } catch (error) {
+    console.error("Error", error)
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
-// Update a vote by ID
 const updateVote = async (req, res) => {
   try {
     const { id } = req.params;
@@ -32,7 +31,6 @@ const updateVote = async (req, res) => {
   }
 };
 
-// Delete a vote by ID
 const deleteVote = async (req, res) => {
   try {
     const { id } = req.params;
