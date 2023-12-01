@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const cors = require('cors');
-const path = require('path')
 // PORT
 const PORT = process.env.PORT || 3000;
 // Routes
@@ -25,7 +24,6 @@ app.use('/', teamRoutes);
 app.use('/', voterRoutes);
 app.use('/', voteRoutes);
 app.use('/', imageRoutes)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
