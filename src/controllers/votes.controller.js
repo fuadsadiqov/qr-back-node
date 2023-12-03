@@ -2,17 +2,7 @@ const Vote = require("../models/votesModel");
 
 const getVotes = async (req, res) => {
   try {
-    const votes = await Vote.find()
-      .populate({
-        path: "voterId",
-        model: "Voter",
-        select: "name", 
-      })
-      .populate({
-        path: "teamId",
-        model: "Team",
-        select: "name",
-      });
+    const votes = await Vote.find();
     res.json(votes);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
