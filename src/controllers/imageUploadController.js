@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const Image = require('../models/imageModel')
 
-
 const ensureDirectoryExists = (directory) => {
   const fullPath = path.resolve(directory);
   if (!fs.existsSync(fullPath)) {
@@ -12,23 +11,28 @@ const ensureDirectoryExists = (directory) => {
 };
 
 const uploadImage = async (req, res) => {
-    const base64Image = req.body.base64Image;
-    try {
-        const imageBuffer = Buffer.from(base64Image, 'base64');
-        const image = sharp(imageBuffer);
+  const base64Image = req.body.base64Image;
 
-        const fileName = `${Date.now()}-${Math.round(Math.random() * 1000000)}.jpg`;
-        const uploadPath = path.join('uploads', fileName);
-        ensureDirectoryExists('uploads');
-        
-        await image.toFile(uploadPath);
-        const newImage = new Image({fileName})
-        await newImage.save();
-        res.status(200).json({message: "Image uploaded successfully", fileName});
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({message: "Error uploading image"});
+  try {
+    const imageBuffer = Buffer.from(base64Image, 'base64');
+    const image = sharp(imageBuffer);
+
+    const fileName = `${Date.now()}-${Math.round(Math.random() * 1000000)}.jpg`;
+    const uploadPath = path.join('uploads', fileName);
+    ensureDirectoryExists('uploads');
+
+    await image.toFile(uploadPath);
+    const newImage = new Image({ fileName });
+    await newImage.save();
+    res.status(200).json({ message: "Image uploaded successfully", fileName });
+  } catch (error) {
+    if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ message: 'Payload too large' });
     }
+
+    console.error(error);
+    res.status(500).json({ message: "Error uploading image" });
+  }
 };
 
 // const getImages = async (req, res) => {
@@ -51,7 +55,7 @@ const uploadImage = async (req, res) => {
 // }
 
 module.exports = {
-    uploadImage,
-    // getImages,
-    // getImageById
+  uploadImage,
+  // getImages,
+  // getImageById
 };
