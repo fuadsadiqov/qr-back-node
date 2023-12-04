@@ -1,12 +1,14 @@
 const express = require('express');
-const { uploadImage, getImages, getImageById } = require('../controllers/imageUploadController');
+const multer = require('multer');
+const { uploadImage } = require('../controllers/imageUploadController');
 const path = require('path');
-
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {fileSize: 5 * 1024 * 1024}
+});
 const router = express.Router();
 
-router.post('/upload', uploadImage);
-// router.get('/uploads', getImages);
-// router.get('/uploads/:id', getImageById);
+router.post('/upload', upload.single('file'), uploadImage);
 router.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 
 module.exports = router;
