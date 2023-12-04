@@ -19,7 +19,9 @@ mongoose.connect(process.env.DB_URL, {
 app.use(cors({
   origin: "*",
 }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({
+  limit: '5mb'
+}));
 app.use('/', teamRoutes);
 app.use('/', voterRoutes);
 app.use('/', voteRoutes);
