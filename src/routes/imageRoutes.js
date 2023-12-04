@@ -5,8 +5,8 @@ const path = require('path');
 const router = express.Router();
 
 router.post('/upload', uploadImage);
-router.get('/uploads', getImages);
-router.get('/uploads/:id', getImageById);
+// router.get('/uploads', getImages);
+// router.get('/uploads/:id', getImageById);
 router.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 
 module.exports = router;
