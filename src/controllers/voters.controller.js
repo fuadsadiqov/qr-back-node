@@ -10,12 +10,11 @@ const getVoters = async (req, res) => {
   }
 };
 
-// Create a new voter
 const createVoter = async (req, res) => {
   try {
     const voter = new Voter(req.body);
     await voter.save();
-    res.json(voter);
+    res.status(200).json(voter);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
