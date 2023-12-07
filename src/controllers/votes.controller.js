@@ -28,7 +28,6 @@ const createVote = async (req, res) => {
     await vote.save();
     res.json(vote);
   } catch (error) {
-    console.error("Error", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
