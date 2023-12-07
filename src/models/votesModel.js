@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const voteSchema = new mongoose.Schema({
-  voterId: { type: mongoose.Schema.Types.ObjectId, ref: 'Voter', required: true },
-  teamId: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: true },
+  voterId: { type: String,  required: true },
+  teamId: { type: String, required: true },
   rating: { type: Number, required: true }
 });
 
