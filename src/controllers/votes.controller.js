@@ -20,7 +20,7 @@ const createVote = async (req, res) => {
       return res.status(400).json({error: "PIN kod yanlışdır"})
     }
 
-    const voteExists = await Vote.exists({ voterId: voter.pin });
+    const voteExists = await Vote.exists({ voterId: voter.pin, teamId });
     if (voteExists) {
       return res.status(400).json({ error: "Hər komandaya yalnız 1 dəfə səs vermək mümkündür" });
     }
