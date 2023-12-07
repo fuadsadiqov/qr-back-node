@@ -1,3 +1,4 @@
+const Voter = require("../models/voterModel");
 const Vote = require("../models/votesModel");
 
 const getVotes = async (req, res) => {
@@ -12,7 +13,18 @@ const getVotes = async (req, res) => {
 const createVote = async (req, res) => {
   try {
     const { voterId, teamId, rating } = req.body;
-    const vote = new Vote({ voterId, teamId, rating });
+
+    const voter = await Voter.findOne({ pin: voterId });
+
+    if(!voter){
+      return res.status(400).json({error: "Voter does not exist "})
+    }
+
+    const voteExists = await Vote.exists({ voterId: voter.pin });
+    if (voteExists) {
+      return res.status(400).json({ error: "Vote already exists for this voter" });
+    }
+    const vote = new Vote({ voterId: voter.pin, teamId, rating });
     await vote.save();
     res.json(vote);
   } catch (error) {
@@ -20,6 +32,8 @@ const createVote = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+
 
 const updateVote = async (req, res) => {
   try {
