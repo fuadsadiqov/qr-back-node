@@ -17,7 +17,7 @@ const createVote = async (req, res) => {
     const voter = await Voter.findOne({ pin: voterId });
 
     if(!voter){
-      return res.status(400).json({error: "Voter does not exist "})
+      return res.status(400).json({error: "Voter does not exist"})
     }
 
     const voteExists = await Vote.exists({ voterId: voter.pin });
