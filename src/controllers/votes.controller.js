@@ -17,12 +17,12 @@ const createVote = async (req, res) => {
     const voter = await Voter.findOne({ pin: voterId });
 
     if(!voter){
-      return res.status(400).json({error: "Voter does not exist"})
+      return res.status(400).json({error: "PIN kod yanlışdır"})
     }
 
     const voteExists = await Vote.exists({ voterId: voter.pin });
     if (voteExists) {
-      return res.status(400).json({ error: "Vote already exists for this voter" });
+      return res.status(400).json({ error: "Hər komandaya yalnız 1 dəfə səs vermək mümkündür" });
     }
     const vote = new Vote({ voterId: voter.pin, teamId, rating });
     await vote.save();
