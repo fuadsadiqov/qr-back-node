@@ -4,10 +4,12 @@ const jwt = require('jsonwebtoken');
 const getAuth = async (req, res) => {
     try {
         const {token} = req.body;
-        const decodedValue = jwt.decode(token)
-        console.log(decodedValue);
+        const {login, password} = jwt.decode(token)
+        if(login == env['LOGIN'] && password == env['PASSWORD']){
+            return res.status(200).json({message: "OK"})
+        }
     } catch (error) {
-        return res.status(500).json({error: "Internal server error"})
+            return res.status(500).json({error: "Internal server error"})
     }
 }
 
