@@ -55,8 +55,16 @@ const deleteVote = async (req, res) => {
 
 const getVotesWithTeams = async (req, res) => {
   try {
-    const allVotes = await Vote.find();
-    return res.status(200).json({message: allVotes})
+    const teamVotes = await Vote.aggregate([
+      {
+        $group: {
+          _id: "$teamId",
+          averageRating: { $avg: "$rating" },
+          teamName: { $first: "$teamName" },
+        },
+      },
+    ])
+    return res.status(200).json({message: teamVotes})
   } catch (error) {
     return res.status(500).json({error: "Internal server error"})
   }
