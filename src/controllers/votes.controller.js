@@ -1,5 +1,6 @@
 const Voter = require("../models/voterModel");
 const Vote = require("../models/votesModel");
+const Team = require('../models/teamModel');
 
 const getVotes = async (req, res) => {
   try {
@@ -12,7 +13,7 @@ const getVotes = async (req, res) => {
 
 const createVote = async (req, res) => {
   try {
-    const { voterId, teamId, rating } = req.body;
+    const { voterId, teamId, rating, teamName } = req.body;
 
     const voter = await Voter.findOne({ pin: voterId });
 
@@ -24,15 +25,13 @@ const createVote = async (req, res) => {
     if (voteExists) {
       return res.status(400).json({ error: "Hər komandaya yalnız 1 dəfə səs vermək mümkündür" });
     }
-    const vote = new Vote({ voterId: voter.pin, teamId, rating });
+    const vote = new Vote({ voterId: voter.pin, teamId, teamName, rating });
     await vote.save();
     res.json(vote);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-
 
 const updateVote = async (req, res) => {
   try {
@@ -54,8 +53,18 @@ const deleteVote = async (req, res) => {
   }
 };
 
+const getVotesWithTeams = async (req, res) => {
+  try {
+    const allVotes = await Vote.find();
+    return res.status(200).json({message: allVotes})
+  } catch (error) {
+    return res.status(500).json({error: "Internal server error"})
+  }
+}
+
 module.exports = {
   getVotes,
+  getVotesWithTeams,
   createVote,
   updateVote,
   deleteVote,
