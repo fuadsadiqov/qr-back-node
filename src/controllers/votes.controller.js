@@ -53,6 +53,17 @@ const deleteVote = async (req, res) => {
   }
 };
 
+const deleteMultipleVotes = async (req, res) => {
+    try{
+      const { ids } = req.body;
+      ids.map(async (id) => await Vote.findByIdAndDelete(id))
+      res.status(200).json("Votes deleted successfully");
+    }
+    catch(error){
+          res.status(500).json("Internal server error");
+    }
+}
+
 const getVotesWithTeams = async (req, res) => {
   try {
     const teamVotes = await Vote.aggregate([
@@ -76,4 +87,5 @@ module.exports = {
   createVote,
   updateVote,
   deleteVote,
+  deleteMultipleVotes
 };
