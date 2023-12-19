@@ -54,15 +54,34 @@ const deleteVote = async (req, res) => {
 };
 
 const deleteMultipleVotes = async (req, res) => {
-    try{
-      const { ids } = req.body;
-      ids.map(async (id) => await Vote.findByIdAndDelete(id))
-      res.status(200).json("Votes deleted successfully");
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids)) {
+      return res.status(400).json("Invalid input. 'ids' must be an array");
     }
-    catch(error){
-          res.status(500).json("Internal server error");
-    }
-}
+
+    const deletionPromises = ids.map(async (id) => {
+      try {
+        const objectId = String(id); // Explicitly convert id to string
+        const vote = await Vote.findById(objectId);
+
+        if (vote) {
+          await Vote.findByIdAndDelete(objectId);
+        }
+      } catch (error) {
+        console.error(`Error deleting vote with ID ${id}:`, error);
+      }
+    });
+
+    await Promise.all(deletionPromises);
+
+    res.status(200).json("Votes deleted successfully");
+  } catch (error) {
+    console.error("Error deleting multiple votes:", error);
+    res.status(500).json("Internal server error");
+  }
+};
 
 const getVotesWithTeams = async (req, res) => {
   try {
