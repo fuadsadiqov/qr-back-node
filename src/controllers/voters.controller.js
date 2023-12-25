@@ -1,4 +1,5 @@
 const Voter = require('../models/voterModel');
+const Vote = require('../models/votesModel');
 
 const getVoters = async (req, res) => {
   try {
@@ -46,6 +47,7 @@ const deleteVoter = async (req, res) => {
   try {
     const { id } = req.params;
     await Voter.findByIdAndDelete(id);
+    await Vote.deleteOne({voterId: id});
     res.json({ message: 'Voter deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -67,6 +69,7 @@ const deleteMultipleVoters = async (req, res) => {
 
         if (vote) {
           await Voter.findByIdAndDelete(objectId);
+          await Vote.deleteOne({voterId: objectId});
         }
       } catch (error) {
         console.error(`Error deleting vote with ID ${id}:`, error);
