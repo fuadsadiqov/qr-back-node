@@ -1,6 +1,5 @@
 const Voter = require('../models/voterModel');
 
-// Get all voters
 const getVoters = async (req, res) => {
   try {
     const voters = await Voter.find();
@@ -20,7 +19,19 @@ const createVoter = async (req, res) => {
   }
 };
 
-// Update a voter by ID
+const createMultipleVoters = async (req, res) => {
+  try {
+    const votersArr = req.body.generatedVoters;
+    for (const item of votersArr) {
+      const newVoter = new Voter(item);
+      await newVoter.save();
+    }
+    res.status(200).json("Voters added successfully");
+  } catch (error) {
+    res.status(500).json("Internal server error");
+  }
+}
+
 const updateVoter = async (req, res) => {
   try {
     const { id } = req.params;
@@ -31,7 +42,6 @@ const updateVoter = async (req, res) => {
   }
 };
 
-// Delete a voter by ID
 const deleteVoter = async (req, res) => {
   try {
     const { id } = req.params;
@@ -45,6 +55,7 @@ const deleteVoter = async (req, res) => {
 module.exports = {
   getVoters,
   createVoter,
+  createMultipleVoters,
   updateVoter,
   deleteVoter,
 };

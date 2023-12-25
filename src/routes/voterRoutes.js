@@ -4,6 +4,7 @@ const voterController = require('../controllers/voters.controller');
 
 router.get('/voters', voterController.getVoters);
 router.post('/voters', voterController.createVoter);
+router.post('/manyVoters', voterController.createMultipleVoters);
 router.put('/voters/:id', voterController.updateVoter);
 router.delete('/voters/:id', voterController.deleteVoter);
 
