@@ -54,6 +54,7 @@ const deleteTeam = async (req, res) => {
   try {
     const { id } = req.params;
     await Team.findByIdAndDelete(id);
+    await Vote.deleteMany({teamId: id});
     res.json({ message: 'Team deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });

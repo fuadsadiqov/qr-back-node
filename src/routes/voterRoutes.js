@@ -7,5 +7,6 @@ router.post('/voters', voterController.createVoter);
 router.post('/manyVoters', voterController.createMultipleVoters);
 router.put('/voters/:id', voterController.updateVoter);
 router.delete('/voters/:id', voterController.deleteVoter);
+router.post('/eyn', voterController.deleteMultipleVoters);
 
 module.exports = router;
