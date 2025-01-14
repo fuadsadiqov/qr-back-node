@@ -1,11 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const cors = require('cors');
-// PORT
-const PORT = process.env.PORT || 3000;
-// Routes
+const sequelize = require('./sequelize');
+
 const teamRoutes = require('./routes/teamRoutes');
 const voterRoutes = require('./routes/voterRoutes');
 const voteRoutes = require('./routes/votesRoutes');
@@ -13,22 +11,21 @@ const imageRoutes = require('./routes/imageRoutes');
 const authRoutes = require('./routes/authRoutes');
 
 const app = express();
-mongoose.connect(process.env.DB_URL, {
-  dbName: 'invoice'
-});
+const PORT = process.env.PORT || 3000;
 
-app.use(cors({
-  origin: "*",
-}));
-app.use(bodyParser.json({
-  limit: '5mb'
-}));
+app.use(cors({ origin: '*' }));
+app.use(bodyParser.json({ limit: '5mb' }));
+
 app.use('/', teamRoutes);
 app.use('/', voterRoutes);
 app.use('/', voteRoutes);
 app.use('/', imageRoutes);
 app.use('/', authRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+sequelize.sync().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}).catch((err) => {
+  console.error('Unable to connect to the database:', err);
 });

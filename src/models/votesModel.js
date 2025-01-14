@@ -1,12 +1,24 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../sequelize');
+const Team = require("../models/teamModel");
 
-const voteSchema = new mongoose.Schema({
-  voterId: { type: String,  required: true },
-  teamId: { type: String, required: true },
-  teamName: { type: String, required: true },
-  rating: { type: Number, required: true }
+const Vote = sequelize.define('Vote', {
+  voterId: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  teamId: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  teamName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  rating: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
 });
-
-const Vote = mongoose.model('Vote', voteSchema);
 
 module.exports = Vote;

@@ -1,5 +1,20 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../sequelize');
 
-const Voter = mongoose.model('Voter', { name: String, pin: String, voterId: mongoose.Types.ObjectId });
+const Voter = sequelize.define('Voter', {
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  pin: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  voterId: {
+    type: DataTypes.STRING,
+    defaultValue: DataTypes.STRING,
+    allowNull: false,
+  },
+});
 
 module.exports = Voter;

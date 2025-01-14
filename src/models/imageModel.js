@@ -1,5 +1,11 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../sequelize');
 
-const Images = mongoose.model('Images', { fileName: String });
+const Image = sequelize.define('Image', {
+  fileName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+});
 
-module.exports = Images;
+module.exports = Image;

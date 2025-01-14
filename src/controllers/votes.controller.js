@@ -1,12 +1,13 @@
 const Voter = require("../models/voterModel");
 const Vote = require("../models/votesModel");
-const Team = require('../models/teamModel');
+const Team = require("../models/teamModel");
 
 const getVotes = async (req, res) => {
   try {
-    const votes = await Vote.find();
+    const votes = await Vote.findAll(); 
     res.json(votes);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -15,18 +16,23 @@ const createVote = async (req, res) => {
   try {
     const { voterId, teamId, rating, teamName } = req.body;
 
-    const voter = await Voter.findOne({ pin: voterId });
-
-    if(!voter){
-      return res.status(400).json({error: "PIN kod yanlışdır"})
+    const voterEl = await Voter.findOne({ where: { pin: voterId } });
+    if (!voterEl) {
+      return res.status(400).json({ error: "PIN kod yanlışdır" });
     }
 
-    const voteExists = await Vote.exists({ voterId: voter.pin, teamId });
-    if (voteExists) {
-      return res.status(400).json({ error: "Hər komandaya yalnız 1 dəfə səs vermək mümkündür" });
+    const votes = await Vote.findAll();
+    if(votes && votes.length)
+    {
+      const voteExists = await Vote.findOne({
+        where: { voterId: voterEl.pin, teamId },
+      });
+      if (voteExists) {
+        return res.status(400).json({ error: "Hər komandaya yalnız 1 dəfə səs vermək mümkündür" });
+      }
     }
-    const vote = new Vote({ voterId: voter.pin, teamId, teamName, rating });
-    await vote.save();
+
+    const vote = await Vote.create({ voterId: voterEl.pin, teamId, teamName, rating });
     res.json(vote);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
@@ -36,9 +42,15 @@ const createVote = async (req, res) => {
 const updateVote = async (req, res) => {
   try {
     const { id } = req.params;
-    await Vote.findByIdAndUpdate(id, req.body);
+
+    const [updated] = await Vote.update(req.body, { where: { id } });
+    if (!updated) {
+      return res.status(404).json({ message: "Vote not found" });
+    }
+
     res.json({ message: "Vote updated successfully" });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -46,9 +58,15 @@ const updateVote = async (req, res) => {
 const deleteVote = async (req, res) => {
   try {
     const { id } = req.params;
-    await Vote.findByIdAndDelete(id);
+
+    const deleted = await Vote.remove({ where: { id } });
+    if (!deleted) {
+      return res.status(404).json({ message: "Vote not found" });
+    }
+
     res.json({ message: "Vote deleted successfully" });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -61,20 +79,7 @@ const deleteMultipleVotes = async (req, res) => {
       return res.status(400).json("Invalid input. 'ids' must be an array");
     }
 
-    const deletionPromises = ids.map(async (id) => {
-      try {
-        const objectId = String(id); // Explicitly convert id to string
-        const vote = await Vote.findById(objectId);
-
-        if (vote) {
-          await Vote.findByIdAndDelete(objectId);
-        }
-      } catch (error) {
-        console.error(`Error deleting vote with ID ${id}:`, error);
-      }
-    });
-
-    await Promise.all(deletionPromises);
+    await Vote.destroy({ where: { id: ids } });
 
     res.status(200).json("Votes deleted successfully");
   } catch (error) {
@@ -85,20 +90,31 @@ const deleteMultipleVotes = async (req, res) => {
 
 const getVotesWithTeams = async (req, res) => {
   try {
-    const teamVotes = await Vote.aggregate([
-      {
-        $group: {
-          _id: "$teamId",
-          averageRating: { $avg: "$rating" },
-          teamName: { $first: "$teamName" },
-        },
-      },
-    ])
-    return res.status(200).json({message: teamVotes})
+    const votes = await Vote.findAll();
+    const teams = await Team.findAll();
+    
+    let result = [];
+
+    teams.forEach(team => {
+      const teamVotes = votes.filter(vote => vote.teamId == team.id);
+      let allPoint = 0;
+      teamVotes.forEach(teamVote => {
+        allPoint += teamVote.rating;
+      });
+      allPoint = (allPoint / teamVotes.length).toFixed(1);
+      result.push({
+        label: team.name,
+        data: allPoint
+      });
+    })
+    
+    res.json(result);
   } catch (error) {
-    return res.status(500).json({error: "Internal server error"})
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-}
+};
+
 
 module.exports = {
   getVotes,
@@ -106,5 +122,5 @@ module.exports = {
   createVote,
   updateVote,
   deleteVote,
-  deleteMultipleVotes
+  deleteMultipleVotes,
 };

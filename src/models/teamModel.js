@@ -1,5 +1,16 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../sequelize');
+const Vote = require("../models/votesModel");
 
-const Team = mongoose.model('Team', { name: String, teamMembers: Array });
+const Team = sequelize.define('Team', {
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  teamMembers: {
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    allowNull: true,
+  },
+});
 
 module.exports = Team;

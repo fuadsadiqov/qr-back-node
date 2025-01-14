@@ -3,19 +3,20 @@ const Vote = require('../models/votesModel');
 
 const getVoters = async (req, res) => {
   try {
-    const voters = await Voter.find();
+    const voters = await Voter.findAll();
     res.json(voters);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
 const createVoter = async (req, res) => {
   try {
-    const voter = new Voter(req.body);
-    await voter.save();
+    const voter = await Voter.create(req.body);
     res.status(200).json(voter);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
@@ -23,22 +24,31 @@ const createVoter = async (req, res) => {
 const createMultipleVoters = async (req, res) => {
   try {
     const votersArr = req.body.generatedVoters;
-    for (const item of votersArr) {
-      const newVoter = new Voter(item);
-      await newVoter.save();
+    if (!Array.isArray(votersArr)) {
+      return res.status(400).json("Invalid input. 'generatedVoters' must be an array");
     }
+
+    await Voter.bulkCreate(votersArr);
     res.status(200).json("Voters added successfully");
   } catch (error) {
-    res.status(500).json("Internal server error");
+    console.error(error);
+    res.status(500).json("Internal Server Error");
   }
-}
+};
 
+// Update a voter
 const updateVoter = async (req, res) => {
   try {
     const { id } = req.params;
-    await Voter.findByIdAndUpdate(id, req.body);
+    const [updated] = await Voter.update(req.body, { where: { id } }); 
+
+    if (!updated) {
+      return res.status(404).json({ message: 'Voter not found' });
+    }
+
     res.json({ message: 'Voter updated successfully' });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
@@ -46,10 +56,17 @@ const updateVoter = async (req, res) => {
 const deleteVoter = async (req, res) => {
   try {
     const { id } = req.params;
-    await Voter.findByIdAndDelete(id);
-    await Vote.deleteOne({voterId: id});
+
+    const deleted = await Voter.destroy({ where: { id } });
+    if (!deleted) {
+      return res.status(404).json({ message: 'Voter not found' });
+    }
+
+    await Vote.destroy({ where: { voterId: id } });
+
     res.json({ message: 'Voter deleted successfully' });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
@@ -62,24 +79,14 @@ const deleteMultipleVoters = async (req, res) => {
       return res.status(400).json("Invalid input. 'ids' must be an array");
     }
 
-    const deletionPromises = ids.map(async (id) => {
-      try {
-        const objectId = String(id);
-        const vote = await Voter.findById(objectId);
+    await Voter.destroy({ where: { id: ids } });
 
-        if (vote) {
-          await Voter.findByIdAndDelete(objectId);
-          await Vote.deleteOne({voterId: objectId});
-        }
-      } catch (error) {
-        console.error(`Error deleting vote with ID ${id}:`, error);
-      }
-    });
-    await Promise.all(deletionPromises);
+    await Vote.destroy({ where: { voterId: ids } });
+
     res.status(200).json("Voters deleted successfully");
   } catch (error) {
     console.error("Error deleting multiple voters:", error);
-    res.status(500).json("Internal server error");
+    res.status(500).json("Internal Server Error");
   }
 };
 
@@ -89,5 +96,5 @@ module.exports = {
   createMultipleVoters,
   updateVoter,
   deleteVoter,
-  deleteMultipleVoters
+  deleteMultipleVoters,
 };
